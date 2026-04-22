@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard — Library System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%);
+            color: #e0e0e0;
+        }
+
+        /* ── Nav ── */
+        nav {
+            background: rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a, .nav-links button {
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #c4c9d6;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+
+        .nav-links a.active {
+            background: rgba(102,126,234,0.2);
+            color: #818cf8;
+        }
+
+        .logout-btn {
+            background: rgba(239,68,68,0.15) !important;
+            color: #fca5a5 !important;
+            border: 1px solid rgba(239,68,68,0.3) !important;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239,68,68,0.25) !important;
+        }
+
+        /* ── Main layout ── */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #f9fafb;
+        }
+
+        .page-header p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* ── Stat cards ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover { transform: translateY(-3px); }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .stat-card.blue::before  { background: linear-gradient(90deg, #667eea, #764ba2); }
+        .stat-card.green::before { background: linear-gradient(90deg, #10b981, #059669); }
+        .stat-card.red::before   { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #f9fafb;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Notification section ── */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .notification-card {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-left: 4px solid #ef4444;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .notification-card .notif-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .notification-card .notif-message {
+            font-size: 0.9rem;
+            color: #fca5a5;
+            line-height: 1.5;
+        }
+
+        .notification-card .notif-date {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.3rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px dashed rgba(255,255,255,0.1);
+            border-radius: 16px;
+            color: #6b7280;
+        }
+
+        .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+        .quick-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        .quick-link-btn {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 14px;
+            text-align: center;
+            text-decoration: none;
+            color: #d1d5db;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s, transform 0.2s, border-color 0.2s;
+        }
+
+        .quick-link-btn:hover {
+            background: rgba(102,126,234,0.15);
+            border-color: rgba(102,126,234,0.4);
+            color: #818cf8;
+            transform: translateY(-2px);
+        }
+
+        .quick-link-btn .ql-icon { font-size: 1.5rem; display: block; margin-bottom: 0.4rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">📚 Library System</div>
+        <div class="nav-links">
+            <a th:href="@{/member/dashboard}" class="active">Dashboard</a>
+            <a th:href="@{/member/catalogue}">Browse Books</a>
+            <a th:href="@{/member/reservations}">My Reservations</a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>Welcome back, <span th:text="${user.name}">Member</span> 👋</h1>
+            <p>Here's a summary of your library activity</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-icon">📖</div>
+                <div class="stat-value" th:text="${totalReservations}">0</div>
+                <div class="stat-label">Total Borrowed</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" th:text="${activeCount}">0</div>
+                <div class="stat-label">Currently Active</div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value" th:text="${overdueCount}">0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="section-title">🔔 Overdue Notifications</div>
+        <div class="notification-list" th:if="${!notifications.isEmpty()}">
+            <div class="notification-card" th:each="n : ${notifications}">
+                <div class="notif-icon">⚠️</div>
+                <div>
+                    <div class="notif-message" th:text="${n.message}">Notification message</div>
+                    <div class="notif-date" th:text="${#temporals.format(n.sentAt, 'dd MMM yyyy, HH:mm')}">Date</div>
+                </div>
+            </div>
+        </div>
+        <div class="empty-state" th:if="${notifications.isEmpty()}">
+            <div class="empty-icon">🎉</div>
+            <p>No overdue notifications. You're all caught up!</p>
+        </div>
+
+        <!-- Quick links -->
+        <div class="quick-links">
+            <a th:href="@{/member/catalogue}" class="quick-link-btn">
+                <span class="ql-icon">🔍</span>Browse Catalogue
+            </a>
+            <a th:href="@{/member/reservations}" class="quick-link-btn">
+                <span class="ql-icon">📋</span>My Reservations
+            </a>
+        </div>
+    </main>
+</body>
+</html>

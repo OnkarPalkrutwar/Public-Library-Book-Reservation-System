@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Books — Library System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1040 50%, #0d1117 100%);
+            color: #e0e0e0;
+        }
+
+        nav {
+            background: rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-role-badge {
+            font-size: 0.7rem; font-weight: 700;
+            background: rgba(245,158,11,0.2); color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.35);
+            border-radius: 20px; padding: 0.2rem 0.6rem;
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 0.75rem; }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+
+        .nav-links a, .nav-links button {
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #c4c9d6;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav-links a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-links a.active { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+        .logout-btn {
+            background: rgba(239,68,68,0.15) !important;
+            color: #fca5a5 !important;
+            border: 1px solid rgba(239,68,68,0.25) !important;
+        }
+
+        main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.9rem; font-weight: 700; color: #f9fafb; }
+        .page-header p { color: #9ca3af; font-size: 0.9rem; margin-top: 0.25rem; }
+
+        .alert {
+            padding: 0.85rem 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .alert-success {
+            background: rgba(34,197,94,0.12);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #86efac;
+        }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+
+        /* Forms */
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            padding: 1.75rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 1.1rem; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #d1d5db;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: #f3f4f6;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+        }
+
+        .form-group input::placeholder { color: #6b7280; }
+        .form-group select option { background: #1e1b4b; color: #f3f4f6; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            border-radius: 10px;
+            color: #1a0f00;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,0.4);
+        }
+
+        /* Existing books table */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            margin: 2rem 0 1rem;
+        }
+
+        .table-container {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead { background: rgba(255,255,255,0.06); }
+
+        thead th {
+            padding: 0.85rem 1.25rem;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+        }
+
+        tbody tr { border-top: 1px solid rgba(255,255,255,0.06); transition: background 0.15s; }
+        tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+        tbody td {
+            padding: 0.85rem 1.25rem;
+            font-size: 0.88rem;
+            color: #d1d5db;
+            vertical-align: middle;
+        }
+
+        .copies-badge {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(245,158,11,0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.25);
+        }
+
+        .inline-add-form {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .inline-add-form input[type="number"] {
+            width: 80px;
+            padding: 0.4rem 0.6rem;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: #f3f4f6;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .inline-add-form input[type="number"]:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+
+        .btn-inline {
+            padding: 0.4rem 0.9rem;
+            background: rgba(245,158,11,0.2);
+            border: 1px solid rgba(245,158,11,0.35);
+            border-radius: 8px;
+            color: #fbbf24;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-inline:hover { background: rgba(245,158,11,0.35); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <div class="nav-brand">📚 Library System</div>
+            <span class="nav-role-badge">Librarian</span>
+        </div>
+        <div class="nav-links">
+            <a th:href="@{/librarian/dashboard}">Dashboard</a>
+            <a th:href="@{/librarian/addBook}" class="active">Add Books</a>
+            <a th:href="@{/librarian/returnQueue}">Return Queue</a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>Book Acquisitions</h1>
+            <p>Add new titles to the collection or increase copies of existing books</p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <div class="two-col">
+            <!-- Add new book -->
+            <div class="card">
+                <div class="card-title">➕ Add New Book Title</div>
+                <form th:action="@{/librarian/addBook}" method="post">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" name="title" placeholder="e.g. The Great Gatsby" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Author</label>
+                        <input type="text" id="author" name="author" placeholder="e.g. F. Scott Fitzgerald" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="copies">Number of Copies</label>
+                        <input type="number" id="copies" name="copies" min="1" value="1" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Add Book to Collection</button>
+                </form>
+            </div>
+
+            <!-- Add copies to existing -->
+            <div class="card">
+                <div class="card-title">📦 Increase Copies for Existing Book</div>
+                <form th:action="@{/librarian/addCopies}" method="post">
+                    <div class="form-group">
+                        <label for="bookId">Select Book</label>
+                        <select id="bookId" name="bookId" required>
+                            <option value="">— Select a book —</option>
+                            <option th:each="book : ${books}"
+                                    th:value="${book.id}"
+                                    th:text="${book.title} + ' (by ' + ${book.author} + ')'">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalCopies">Additional Copies</label>
+                        <input type="number" id="additionalCopies" name="additionalCopies" min="1" value="1" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Add Copies</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current collection table -->
+        <div class="section-title">📚 Current Collection</div>
+        <div class="table-container" th:if="${!books.isEmpty()}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Available Copies</th>
+                        <th>Quick Add Copies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="book, iter : ${books}">
+                        <td th:text="${iter.count}">1</td>
+                        <td style="font-weight:600; color:#f3f4f6;" th:text="${book.title}">Title</td>
+                        <td th:text="${book.author}">Author</td>
+                        <td>
+                            <span class="copies-badge" th:text="${book.availableCopies} + ' cop' + (${book.availableCopies} == 1 ? 'y' : 'ies')"></span>
+                        </td>
+                        <td>
+                            <form th:action="@{/librarian/addCopies}" method="post" class="inline-add-form">
+                                <input type="hidden" name="bookId" th:value="${book.id}">
+                                <input type="number" name="additionalCopies" min="1" value="1">
+                                <button type="submit" class="btn-inline">+ Add</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${books.isEmpty()}"
+             style="text-align:center; padding:3rem; color:#6b7280; background:rgba(255,255,255,0.03);
+                    border:1px dashed rgba(255,255,255,0.1); border-radius:16px;">
+            No books in the collection yet. Add the first one above.
+        </div>
+    </main>
+</body>
+</html>
