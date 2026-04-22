@@ -1,0 +1,39 @@
+# Compiled class files
+target/
+
+# Maven
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+
+# IDE - VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Application properties with sensitive data (uncomment if needed)
+# src/main/resources/application.properties
+
+# Temporary files
+*.tmp
+*.swp
+*~
